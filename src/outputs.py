@@ -1,5 +1,9 @@
-from colorama import Cursor, Style, Fore, init
+from colorama import Cursor, Style, Fore, init, Back
 import sys
+import os 
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1" # Hides the "Hello from pygame" text
+
+import pygame
 import time
 
 init()
@@ -8,20 +12,43 @@ init()
 #* Starts from \x1b, tells the console to do other things than output text
 #* For example: \x1b[3A moves up 3 lines 
 
+def ensure_mixer():
+    if not pygame.mixer.get_init():
+        pygame.mixer.init()
+
+ensure_mixer()
+dot_sound = pygame.mixer.Sound("assets/dot.wav")
+dash_sound = pygame.mixer.Sound("assets/dash.wav")
+
 def clear_line():
     """Clears the line wherever the cursor is on the terminal"""
     sys.stdout.write("\x1b[2K") 
 
 def highlighted(to_highlight:str) -> str:
     """Highlights the text to display via colorama"""
-    return Fore.BLUE + to_highlight + Style.RESET_ALL
+    return Fore.BLUE + Style.BRIGHT + Back.YELLOW + to_highlight + Style.RESET_ALL
 
-def write_to_console(morse:list[str], plain:str):
+def write_to_console(morse:list[str], plain:str, audio:bool=False):
+    global dot_sound, dash_sound
 
-    print("\n") # To retain the console command line
+    if audio:
+        ensure_mixer() # I genuinly dont know please
+
+    def morse_and_plain(morse:str, plain:str):
+            # move to Morse line
+            clear_line()
+            sys.stdout.write(morse + "\n")
+
+            # plain text line
+            clear_line()
+            sys.stdout.write(plain + "\n")
+            sys.stdout.flush()
+
+    print("\n") # Basically to make space for the output to be on multiple lines
 
     completed_morse = ""
     completed_plain = ""
+
     sys.stdout.write("\033[?25l") # hide cursor
     sys.stdout.flush()
 
@@ -32,25 +59,33 @@ def write_to_console(morse:list[str], plain:str):
             this_morse += dees
 
             if dees == '.':
-                delay = 0.12 # Got delay timings via experimentation
+                delay = dot_sound.get_length() #0.12 # Got delay timings via experimentation
+                dot_sound.play() if audio else None
             else:
-                delay = 0.36
+                delay = dash_sound.get_length()
+                dash_sound.play() if audio else None
 
 
             # move to Morse line
             sys.stdout.write(Cursor.UP(2))  # go up 2 lines
-            clear_line()
-            sys.stdout.write(completed_morse + highlighted(this_morse)  + "\n")
 
-            # plain text line
-            clear_line()
-            sys.stdout.write(completed_plain + highlighted(pchar) + "\n")
-            sys.stdout.flush()
+            morse_and_plain(completed_morse + highlighted(this_morse),
+                            completed_plain + highlighted(pchar))            
 
-            time.sleep(delay) 
+            time.sleep(delay + 0.3) 
 
         completed_plain += pchar
         completed_morse += this_morse
+
+        # When finished, it should show the whole strings without any highlighting
+        sys.stdout.write(Cursor.UP(2))  # go up 2 lines
+        morse_and_plain(completed_morse, completed_plain)
     
-    sys.stdout.write("\033[?25h") # show cursor
+    sys.stdout.write("\033[?25h") # show cursor (not really needed i guess)
     sys.stdout.flush()
+
+if __name__ == "__main__":
+    # print(pygame.mixer.get_init())
+    #* FOR TESTING
+    dot_sound.play()
+    time.sleep(1)
