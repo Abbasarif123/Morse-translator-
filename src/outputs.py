@@ -28,7 +28,7 @@ def highlighted(to_highlight:str) -> str:
     """Highlights the text to display via colorama"""
     return Fore.BLUE + Style.BRIGHT + Back.YELLOW + to_highlight + Style.RESET_ALL
 
-def write_to_console(morse:list[str], plain:str, audio:bool=False):
+def console_output(morse:list[str], plain:str, audio:bool=False):
     global dot_sound, dash_sound
 
     if audio:
@@ -84,8 +84,34 @@ def write_to_console(morse:list[str], plain:str, audio:bool=False):
     sys.stdout.write("\033[?25h") # show cursor (not really needed i guess)
     sys.stdout.flush()
 
+def screen_output():#morse:list[str], plain:str, audio:bool=False):
+    # Create screen
+    screen = pygame.display.set_mode((800, 600))
+    pygame.display.set_caption("Demo")
+
+    # Colors
+    BLACK = (0, 0, 0)
+    WHITE = (255, 255, 255)
+
+    def fill(color:tuple[int, int, int]):
+        screen.fill(color)
+        pygame.display.flip() # updates window
+
+    fill(BLACK)
+    time.sleep(2)
+    fill(WHITE)
+    time.sleep(2)
+
 if __name__ == "__main__":
     # print(pygame.mixer.get_init())
     #* FOR TESTING
-    dot_sound.play()
-    time.sleep(1)
+    pygame.init()
+    clock = pygame.time.Clock()
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                running = False 
+    
+        screen_output()

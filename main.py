@@ -1,8 +1,10 @@
-from src.inputs import get_input
-from src.outputs import write_to_console
+from src.inputs import *
+from src.outputs import console_output
 
 def main():
-    # text = get_input()
+    options = setup_parser()
+    print(vars(options))
+    # interactive_mode()
     # TODO: Add translation functions here
     # *: Morse code data should be list of morse code strings. 
     # Every item in the list would be mapped to each character in the string
@@ -12,7 +14,7 @@ def main():
     morse = ["....", ".", ".-..", ".-..", "---", ".......", ".--", "---", ".-.", ".-..", "-.."]
     plain = "Hello World"
 
-    write_to_console(morse, plain)
+    # console_output(morse, plain)
 
 
 if __name__ == "__main__":
