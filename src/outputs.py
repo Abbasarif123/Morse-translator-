@@ -1,15 +1,25 @@
 from colorama import Cursor, Style, Fore, init, Back
 import sys
 import os 
+import pyttsx3
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1" # Hides the "Hello from pygame" text
 
 import pygame
 import time
+
 init()
 
-#* NOTE: ANSI ESCAPE CODES:
-#* Starts from \x1b, tells the console to do other things than output text
-#* For example: \x1b[3A moves up 3 lines 
+engine = pyttsx3.init()
+
+engine.setProperty("rate", 200)
+engine.setProperty("volume", 0.9)
+
+def tts_output(plain):
+    engine = pyttsx3.init()
+    engine.say(plain)
+    engine.runAndWait()
+
+
 
 def ensure_mixer():
     if not pygame.mixer.get_init():
@@ -18,6 +28,10 @@ def ensure_mixer():
 ensure_mixer()
 dot_sound = pygame.mixer.Sound("assets/dot.wav")
 dash_sound = pygame.mixer.Sound("assets/dash.wav")
+
+#* NOTE: ANSI ESCAPE CODES:
+#* Starts from \x1b, tells the console to do other things than output text
+#* For example: \x1b[3A moves up 3 lines 
 
 def clear_line():
     """Clears the line wherever the cursor is on the terminal"""

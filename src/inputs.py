@@ -115,7 +115,6 @@ def interactive_mode() -> dict[str, str]:
 
     return options
 
-#! REWORK THIS:
 def get_options() -> dict:
     """From the parsed arguments, gets the options for the program to run
     Returns:

@@ -1,4 +1,4 @@
-from morsedictionary import morsedictionary,textdictionary
+from src.morsedictionary import morsedictionary,textdictionary
 
 def texttomorse(message):
     uppermessage = message.upper()
