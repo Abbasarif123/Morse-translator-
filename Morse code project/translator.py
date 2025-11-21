@@ -27,4 +27,21 @@ def morsetotext(morsecode):
         text += " "
 
     return text.strip()
+
+
+def identifier(userinput):
+    if userinput == "" or userinput.isspace():
+        raise ValueError( "Error, can't identify")
+
+
+    morsecharacters = set('.- /')
+    inputcharacters = set(userinput.strip())
+
+    if inputcharacters.issubset(morsecharacters):
+        return "Morse"
+    else:
+        return "Text"
+    
+
+
     
