@@ -7,6 +7,8 @@ os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1" # Hides the "Hello from pygame" t
 import pygame
 import time
 
+from src.morseplayer import playmorsesound
+
 init()
 
 engine = pyttsx3.init()
@@ -64,6 +66,8 @@ def console_output(morse:list[list[str]], plain:str, audio:bool=False):
     completed_morse = ""
     completed_plain = ""
 
+    BONUS_DELAY = 0.1
+
     sys.stdout.write("\033[?25l") # hide cursor
     sys.stdout.flush()
 
@@ -76,10 +80,12 @@ def console_output(morse:list[list[str]], plain:str, audio:bool=False):
 
                 if dees == '.':
                     delay = dot_sound.get_length() #0.12 # Got delay timings via experimentation
-                    dot_sound.play() if audio else None
+                    # dot_sound.play() if audio else None
                 else:
                     delay = dash_sound.get_length()
-                    dash_sound.play() if audio else None
+                    # dash_sound.play() if audio else None
+
+                playmorsesound(dees) if audio else None
 
 
                 # move to Morse line
@@ -87,7 +93,7 @@ def console_output(morse:list[list[str]], plain:str, audio:bool=False):
                 morse_and_plain(completed_morse + highlighted(this_morse),
                                 completed_plain + highlighted(pchar))            
 
-                time.sleep(delay + 0.3) 
+                # time.sleep(delay + BONUS_DELAY) 
 
             completed_plain += pchar
             completed_morse += this_morse
