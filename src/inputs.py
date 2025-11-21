@@ -65,6 +65,9 @@ def interactive_mode() -> dict[str, str]:
         choices=["Console input", "File contents"]
     ).ask()
     
+    if input_choice is None:
+        raise ValueError("User did not enter input choice")
+
     # * INPUTS
     if input_choice == "File contents": # * IF FILE:
         options["file_input"] = True
@@ -73,6 +76,7 @@ def interactive_mode() -> dict[str, str]:
         file_path = questionary.path(
             "Whats the path to the file?"
         ).ask()
+
 
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"File {file_path} not found")
@@ -84,11 +88,17 @@ def interactive_mode() -> dict[str, str]:
             "Enter your text to translate:"
         ).ask()
 
+        if options['text'] is None:
+            raise ValueError("User did not input text")
+
     # * OUTPUTS
     output_choice = questionary.select(
         "How would you like your outputs?",
         choices=["Screen", "Console","File", "Screen+File", "Console+File"]
     ).ask()
+
+    if output_choice is None:
+        raise ValueError("User did not input output choice")
 
     options["console_output"] = "Console" in output_choice
     options["screen_output"] = "Screen" in output_choice
@@ -106,18 +116,24 @@ def interactive_mode() -> dict[str, str]:
     return options
 
 #! REWORK THIS:
-def get_options() -> dict[str, str|bool]:
+def get_options() -> dict:
     """From the parsed arguments, gets the options for the program to run
     Returns:
         dict: options for the program. includes the text to translate
         
     Raises:
         FileNotFoundError: If file does not exist or permissions restrict access"""
-    args = setup_parser()
-    if len(sys.argv) == 1 or args.i:
-        options = interactive_mode()
 
-    return {}
+    args = setup_parser()
+
+    if len(sys.argv) == 1 or args.interactive_mode:
+        options = interactive_mode()
+        return options
+    
+    if args.file_output:
+        args.text = read_from_file(args.file_output)
+
+    return vars(args)
 
 if __name__ == "__main__":
     args = setup_parser()
