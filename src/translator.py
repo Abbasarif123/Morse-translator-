@@ -28,7 +28,6 @@ def morsetotext(morsecode):
 
     return text.strip()
 
-
 def identifier(userinput):
     if userinput == "" or userinput.isspace():
         raise ValueError( "Error, can't identify")

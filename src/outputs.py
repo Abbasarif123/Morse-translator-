@@ -67,8 +67,8 @@ def console_output(morse:list[list[str]], plain:str, audio:bool=False):
     sys.stdout.write("\033[?25l") # hide cursor
     sys.stdout.flush()
 
-    for m_letter, p_letter in zip(morse, plain.split()):
-        for mchar, pchar in zip(m_letter, p_letter):
+    for m_word, p_word in zip(morse, plain.split()):
+        for mchar, pchar in zip(m_word, p_word):
 
             this_morse = ""
             for dees in mchar:
@@ -93,7 +93,7 @@ def console_output(morse:list[list[str]], plain:str, audio:bool=False):
             completed_morse += this_morse
         
         # Space in between words
-        completed_morse += "   "
+        completed_morse += " / " 
         completed_plain += " "
 
     # When finished, it should show the whole strings without any highlighting
