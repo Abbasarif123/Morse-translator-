@@ -1,6 +1,7 @@
 from src.inputs import *
 from src.outputs import *
 from src.translator import translate
+import sys
 
 # ! SPACE BETWEEN CHARACTERS
 # ! SLASH BETWEEN WORDS
@@ -21,7 +22,10 @@ def write_to_file(file_path:str, morse:str, plain:str):
 
 def main():
 
-    options = get_options()
+    try:
+        options = get_options()
+    except Exception as e:
+        sys.exit("ERROR:" + str(e))
 
     blind_text = options['text']
     morse, plain = translate(blind_text) 

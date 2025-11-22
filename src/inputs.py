@@ -9,6 +9,7 @@ def setup_parser():
     Returns:
         args: The parsed arguments
     """
+
     parser = argparse.ArgumentParser(
         epilog="If no arguments given, enters interactive mode."
     )
@@ -20,8 +21,8 @@ def setup_parser():
 
     input_group = parser.add_mutually_exclusive_group() # Only one but not both
 
-    input_group.add_argument("-fi", "--file-input", action="store_true", 
-                        help="Translate text in the file")
+    input_group.add_argument("-fi", "--file-input", metavar="filepath", 
+                        type=str, required=False, help="Translate text in the file")
 
     input_group.add_argument("-ci", "--console-input", action="store_true", 
                         help="Translates text given with the command")
@@ -34,7 +35,7 @@ def setup_parser():
                         help="Displays translated morse code via a screen")
 
     parser.add_argument("-fo", "--file-output", metavar="filepath",
-                        type=str, required=False)
+                        type=str, required=False, help="Output text and morse code into an existing .txt file")
     
     parser.add_argument("-ao", "--audio-ouput", action="store_true",
                         help="Sound out audio alongside screen or console output", dest="audio")
@@ -42,18 +43,24 @@ def setup_parser():
     return parser.parse_args()
 
     # If filepath is given, so read file   
-# ! REFERENCE: {'text': 'yadaydya', 'interactive_mode': False, 'file_input': True, 'console_input': False, 'console_output': False, 'screen_output': False, 'audio': False}
 
 def read_from_file(filepath:str) -> str:
+    
     with open(filepath) as file:
         text = file.read().strip()
     return text
 
+def file_exists(filepath:str) -> bool:
+    return os.path.exists(filepath)
+
 def interactive_mode() -> dict[str, str]:
+    """Shows options and asks user to fill out options one by one
+    Raises:
+        FileNotFoundError: If input file isn't found
+        ValueError: If user quits inbetween inputs"""
     options = { 'text': None, 
-                'interactive_mode': False,
-                'file_input': False,
-                "file_input_path": None,
+                'interactive_mode': True,
+                'file_input': None,
                 'console_output': False,
                 'screen_output': False,
                 'file_output': None,
@@ -70,19 +77,15 @@ def interactive_mode() -> dict[str, str]:
 
     # * INPUTS
     if input_choice == "File contents": # * IF FILE:
-        options["file_input"] = True
-    
 
-        file_path = questionary.path(
+        options['file_input'] = questionary.path(
             "Whats the path to the file?"
         ).ask()
 
 
-        if not os.path.exists(file_path):
-            raise FileNotFoundError(f"File {file_path} not found")
+        if not file_exists(options['file_input']):
+            raise FileNotFoundError(f"File {options['file_input']} not found")
 
-        options['file_input_path'] = file_path   
-        options['text'] = read_from_file(file_path)
     else: #* IF CONSOLE
         options['text'] = questionary.text(
             "Enter your text to translate:"
@@ -127,13 +130,22 @@ def get_options() -> dict:
 
     if len(sys.argv) == 1 or args.interactive_mode:
         options = interactive_mode()
-        return options
-    
-    if args.file_output:
-        args.text = read_from_file(args.file_output)
+        print("INTERACTIVE:", options)
+    else:
+        options = vars(args)
+        print("ARGS:", options)
 
-    return vars(args)
+
+    if options['file_input'] and not os.access(options['file_input'], os.R_OK):
+        raise FileNotFoundError(f"File: {options['file_input']} has insufficient read permissions")
+
+    if options['file_input']:
+        options[ 'text' ] = read_from_file(options['file_input'])
+
+    if file_exists(options['file_output']) and not os.access(options['file_output'], os.W_OK):
+        raise FileNotFoundError(f"File: {options['file_output']} has insufficient write permissions")
+
+    return options
 
 if __name__ == "__main__":
-    args = setup_parser()
-    print(vars(args))
+    get_options()
