@@ -11,17 +11,16 @@ from src.morseplayer import playmorsesound
 
 init()
 
-engine = pyttsx3.init()
-
-engine.setProperty("rate", 200)
-engine.setProperty("volume", 0.9)
-
+# TODO: HOW TO INCORP THIS???
 def tts_output(plain):
+
+    engine = pyttsx3.init()
+
+    engine.setProperty("rate", 200)
+    engine.setProperty("volume", 0.9)
     engine = pyttsx3.init()
     engine.say(plain)
     engine.runAndWait()
-
-
 
 def ensure_mixer():
     if not pygame.mixer.get_init():
@@ -35,21 +34,27 @@ dash_sound = pygame.mixer.Sound("assets/dash.wav")
 #* Starts from \x1b, tells the console to do other things than output text
 #* For example: \x1b[3A moves up 3 lines 
 
-def clear_line():
-    """Clears the line wherever the cursor is on the terminal"""
-    sys.stdout.write("\x1b[2K") 
 
-def highlighted(to_highlight:str) -> str:
-    """Highlights the text to display via colorama"""
-    return Fore.BLUE + Style.BRIGHT + Back.YELLOW + to_highlight + Style.RESET_ALL
+BONUS_DELAY = 0.1
 
 def console_output(morse:list[list[str]], plain:str, audio:bool=False):
-    global dot_sound, dash_sound
+    """Outputs the morse code and plaintext string side by side, one at a time, on the console
+    Args:
+        morse (list[list[str]]): Morse code equivalent of plain. Every word in plain is mapped as a list of str
+        plain (str): plaintext equivalent of morse
+        audio (bool): For audio output alongside console output
+    """
 
-    if audio:
-        ensure_mixer() # I genuinly dont know please
+    def clear_line():
+        """Clears the line wherever the cursor is on the terminal"""
+        sys.stdout.write("\x1b[2K") 
+
+    def highlighted(to_highlight:str) -> str:
+        """Highlights the text to display via colorama"""
+        return Fore.BLUE + Style.BRIGHT + Back.YELLOW + to_highlight + Style.RESET_ALL
 
     def morse_and_plain(morse:str, plain:str):
+            """Helper function for outputing morse and plain alongisde each other"""
 
             sys.stdout.write(Cursor.UP(2))  # go up 2 lines
             # move to Morse line
@@ -60,13 +65,18 @@ def console_output(morse:list[list[str]], plain:str, audio:bool=False):
             clear_line()
             sys.stdout.write(plain + "\n")
             sys.stdout.flush()
+    
+    global dot_sound, dash_sound
+
+    if audio:
+        ensure_mixer() # I genuinly dont know please
+
 
     print("\n") # Basically to make space for the output to be on multiple lines
 
     completed_morse = ""
     completed_plain = ""
 
-    BONUS_DELAY = 0.1
 
     sys.stdout.write("\033[?25l") # hide cursor
     sys.stdout.flush()
@@ -79,13 +89,13 @@ def console_output(morse:list[list[str]], plain:str, audio:bool=False):
                 this_morse += dees
 
                 if dees == '.':
-                    delay = dot_sound.get_length() #0.12 # Got delay timings via experimentation
-                    # dot_sound.play() if audio else None
+                    delay = dot_sound.get_length() 
+                    dot_sound.play() if audio else None
                 else:
                     delay = dash_sound.get_length()
-                    # dash_sound.play() if audio else None
+                    dash_sound.play() if audio else None
 
-                playmorsesound(dees) if audio else None
+                #! playmorsesound(dees) if audio else None
 
 
                 # move to Morse line
@@ -93,7 +103,7 @@ def console_output(morse:list[list[str]], plain:str, audio:bool=False):
                 morse_and_plain(completed_morse + highlighted(this_morse),
                                 completed_plain + highlighted(pchar))            
 
-                # time.sleep(delay + BONUS_DELAY) 
+                time.sleep(delay + BONUS_DELAY) 
 
             completed_plain += pchar
             completed_morse += this_morse
@@ -108,6 +118,7 @@ def console_output(morse:list[list[str]], plain:str, audio:bool=False):
     sys.stdout.write("\033[?25h") # show cursor 
     sys.stdout.flush()
 
+# TODO: TEST THIS 
 def screen_output(morse:list[list[str]], plain:str, audio:bool=False):
     
     # Initialize pygame cycle Create screen
@@ -123,18 +134,22 @@ def screen_output(morse:list[list[str]], plain:str, audio:bool=False):
     BLACK = (0, 0, 0)
     WHITE = (255, 255, 255)
 
-    fill(WHITE) # Initially white
+    fill(BLACK) # Initially black 
 
     def flash(delay:float|int):
+        """flashes the screen white for delay seconds"""
         fill(BLACK)
-        time.sleep(delay)
+        pygame.time.wait(int(delay * 1000))
         fill(WHITE)
 
     if audio:
         ensure_mixer() # bugs if this isn't included
 
+    screen_delay = BONUS_DELAY 
+
     for mword in morse:
         for mcode in mword:
+
             for dees in mcode:
                 if dees == '.':
                     delay = dot_sound.get_length() #0.12 # Got delay timings via experimentation
@@ -143,11 +158,15 @@ def screen_output(morse:list[list[str]], plain:str, audio:bool=False):
                     delay = dash_sound.get_length()
                     dash_sound.play() if audio else None
 
-                flash(delay)
-            time.sleep(0.5)               
+                flash(delay + screen_delay)
+            pygame.time.wait(int(screen_delay * 1000))               
 
 
     pygame.quit()
+
+def file_output(file_path:str, morse:str, plain:str):
+    with open(file_path, 'w') as file:
+        file.write(f"MORSE: {morse}\nPLAIN: {plain}") 
 
 if __name__ == "__main__":
     # print(pygame.mixer.get_init())

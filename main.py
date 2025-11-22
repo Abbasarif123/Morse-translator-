@@ -5,7 +5,6 @@ import sys
 
 # ! SPACE BETWEEN CHARACTERS
 # ! SLASH BETWEEN WORDS
-# TODO: ADDD METAVAR TO FI
 
 def polish_morse(morse:str) -> list[list[str]]:
     morse_words = morse.split("/")
@@ -17,8 +16,6 @@ def polish_morse(morse:str) -> list[list[str]]:
 
 #     return [["....", ".", ".-..", ".-..", "---"], [".--", "---", ".-.", ".-..", "-.."]], "Hello World"
 
-def write_to_file(file_path:str, morse:str, plain:str):
-    raise NotImplementedError
 
 def main():
 
@@ -29,15 +26,16 @@ def main():
 
     blind_text = options['text']
     morse, plain = translate(blind_text) 
-    morse = polish_morse(morse)
+    listed_morse = polish_morse(morse)
+
+    if options["file_output"]:
+        write_to_file(options["file_output"], morse, plain)
 
     if options["screen_output"]:
-        screen_output(morse, plain, options["audio"])
-    else:
-        console_output(morse, plain, options["audio"])
+        screen_output(listed_morse, plain, options["audio"])
+    elif options["console_output"]:
+        console_output(listed_morse, plain, options["audio"])
     
-    if options["file_output"]:
-        write_to_file(options["file_output"], "---", plain)
 
 if __name__ == "__main__":
     main()

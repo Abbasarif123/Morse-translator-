@@ -11,7 +11,7 @@ def setup_parser():
     """
 
     parser = argparse.ArgumentParser(
-        epilog="If no arguments given, enters interactive mode."
+        epilog="Accepts morsecode with spaces inbetween characters, and '/' between words\nIf no arguments given, enters interactive mode."
     )
 
 
@@ -50,10 +50,13 @@ def read_from_file(filepath:str) -> str:
         text = file.read().strip()
     return text
 
-def file_exists(filepath:str) -> bool:
+def file_exists(filepath:str|None) -> bool:
+    if filepath is None:
+        return False
+
     return os.path.exists(filepath)
 
-def interactive_mode() -> dict[str, str]:
+def interactive_mode() -> dict:
     """Shows options and asks user to fill out options one by one
     Raises:
         FileNotFoundError: If input file isn't found
@@ -130,22 +133,24 @@ def get_options() -> dict:
 
     if len(sys.argv) == 1 or args.interactive_mode:
         options = interactive_mode()
-        print("INTERACTIVE:", options)
     else:
         options = vars(args)
-        print("ARGS:", options)
+
+    # * Assume console input if nothing else given
+    if options['text'] and all(not options[opt] for opt in ['console_output', 'file_output', 'screen_output']):
+        options['console_output'] = True
 
 
-    if options['file_input'] and not os.access(options['file_input'], os.R_OK):
+    if file_exists(options['file_input']) and not os.access(options['file_input'], os.R_OK): # Checks to see if file exists and has necessary permissions
         raise FileNotFoundError(f"File: {options['file_input']} has insufficient read permissions")
 
     if options['file_input']:
         options[ 'text' ] = read_from_file(options['file_input'])
 
-    if file_exists(options['file_output']) and not os.access(options['file_output'], os.W_OK):
+    if file_exists(options['file_output']) and not os.access(options['file_output'], os.W_OK): # Same thing, just with write permissions
         raise FileNotFoundError(f"File: {options['file_output']} has insufficient write permissions")
 
     return options
 
 if __name__ == "__main__":
-    get_options()
+    print(get_options())

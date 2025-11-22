@@ -1,13 +1,14 @@
 from src.morsedictionary import morsedictionary,textdictionary
 
 def texttomorse(message):
+    """Converts plaintext message to morse code"""
     uppermessage = message.upper()
     morsecode = ""
-    for index,element in enumerate(uppermessage):
+    for element in uppermessage:
         try:
             morsecode += morsedictionary[element] + " "
         except KeyError: 
-            return "ERROR, CANNOT BE EXPRESED IN MORSECODE"
+            raise ValueError(f"ERR: {element} cannot be expressed in morse")
         
     return  f"{morsecode.strip()}"
 
@@ -22,14 +23,16 @@ def morsetotext(morsecode):
                 try:
                     text += textdictionary[alphabetcode]
                 except KeyError:
-                    return "INVALID MORSECODE"
+                    raise ValueError(f"ERR: {alphabetcode} cannot be converted to plaintext")
         text += " "
 
     return text.strip()
 
-def identifier(userinput):
-    if userinput == "" or userinput.isspace():
-        raise ValueError( "Error, can't identify")
+def identifier(userinput:str):
+    userinput = userinput.strip()
+
+    if userinput == "":
+        raise ValueError("ERR: Empty text, can't identify")
 
 
     morsecharacters = set('.- /')
