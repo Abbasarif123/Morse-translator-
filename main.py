@@ -29,7 +29,7 @@ def main():
     listed_morse = polish_morse(morse)
 
     if options["file_output"]:
-        write_to_file(options["file_output"], morse, plain)
+        file_output(options["file_output"], morse, plain)
 
     if options["screen_output"]:
         screen_output(listed_morse, plain, options["audio"])

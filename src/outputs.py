@@ -35,7 +35,6 @@ dash_sound = pygame.mixer.Sound("assets/dash.wav")
 #* For example: \x1b[3A moves up 3 lines 
 
 
-BONUS_DELAY = 0.1
 
 def console_output(morse:list[list[str]], plain:str, audio:bool=False):
     """Outputs the morse code and plaintext string side by side, one at a time, on the console
@@ -68,6 +67,7 @@ def console_output(morse:list[list[str]], plain:str, audio:bool=False):
     
     global dot_sound, dash_sound
 
+    BONUS_DELAY = 0.1
     if audio:
         ensure_mixer() # I genuinly dont know please
 
@@ -126,6 +126,29 @@ def screen_output(morse:list[list[str]], plain:str, audio:bool=False):
     screen = pygame.display.set_mode((800, 600))
     pygame.display.set_caption("Screen output")
 
+
+    clock = pygame.time.Clock()
+    def wait_nonblocking(ms):
+        """Nonblocking wait that keeps window responsive.
+        Args:
+            ms (int): Duration to wait for in milliseconds
+        """
+
+        # * I can't use waiting events like time.sleep or pygame.time.wait cuz those 
+        # * completely block the screen, so I have to keep track of time and delay manually 
+
+        start = pygame.time.get_ticks()
+        while pygame.time.get_ticks() - start < ms:
+
+            for event in pygame.event.get(): # * This keeps pygame from freezing, as it fetches all pending events 
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    return False
+                
+            clock.tick(144) # * usually controls framerate, but used for not using more CPU time than needed
+
+        return True 
+
     def fill(color:tuple[int, int, int]):
         screen.fill(color)
         pygame.display.flip() # updates window
@@ -133,33 +156,43 @@ def screen_output(morse:list[list[str]], plain:str, audio:bool=False):
     # Colors
     BLACK = (0, 0, 0)
     WHITE = (255, 255, 255)
+    FLASH_GAP_MS = 500
 
     fill(BLACK) # Initially black 
 
-    def flash(delay:float|int):
-        """flashes the screen white for delay seconds"""
-        fill(BLACK)
-        pygame.time.wait(int(delay * 1000))
+    def flash(delay_ms:int):
+        """flashes the screen white for delay milliseconds"""
         fill(WHITE)
+        if not wait_nonblocking(delay_ms):
+            raise ValueError("User quit") 
+        
+        fill(BLACK)
+        if not wait_nonblocking(FLASH_GAP_MS):
+            raise ValueError("User quit") 
 
     if audio:
         ensure_mixer() # bugs if this isn't included
 
-    screen_delay = BONUS_DELAY 
 
     for mword in morse:
         for mcode in mword:
 
             for dees in mcode:
+
+                pygame.event.pump() # Keeps the game loop resposive, so the screen doesn't completely freeze
+
                 if dees == '.':
-                    delay = dot_sound.get_length() #0.12 # Got delay timings via experimentation
+                    delay = dot_sound.get_length() 
                     dot_sound.play() if audio else None
                 else:
                     delay = dash_sound.get_length()
                     dash_sound.play() if audio else None
 
-                flash(delay + screen_delay)
-            pygame.time.wait(int(screen_delay * 1000))               
+
+                delay_ms = int(delay * 1000)
+
+                flash(delay_ms)
+
 
 
     pygame.quit()
@@ -171,4 +204,4 @@ def file_output(file_path:str, morse:str, plain:str):
 if __name__ == "__main__":
     # print(pygame.mixer.get_init())
     #* FOR TESTING
-    pass
+    print(dot_sound.get_length(), dash_sound.get_length())
