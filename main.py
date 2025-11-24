@@ -21,21 +21,28 @@ def main():
 
     try:
         options = get_options()
-    except Exception as e:
+    except (ValueError, FileNotFoundError) as e:
         sys.exit("ERROR:" + str(e))
 
     blind_text = options['text']
-    morse, plain = translate(blind_text) 
+    try:
+        morse, plain = translate(blind_text) 
+    except ValueError as e:
+        sys.exit("ERROR:" + str(e))
+
+
+    
     listed_morse = polish_morse(morse)
 
     if options["file_output"]:
         file_output(options["file_output"], morse, plain)
 
     if options["screen_output"]:
-        screen_output(listed_morse, plain, options["audio"])
+        screen_output(listed_morse, options["audio"])
     elif options["console_output"]:
         console_output(listed_morse, plain, options["audio"])
-    
+    elif options["text_to_speech"]:
+        tts_output(plain)
 
 if __name__ == "__main__":
     main()

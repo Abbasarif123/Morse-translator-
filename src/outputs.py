@@ -11,14 +11,21 @@ from src.morseplayer import playmorsesound
 
 init()
 
-# TODO: HOW TO INCORP THIS???
-def tts_output(plain):
+def tts_output(plain:str):
+    """Sounds out plaintext in text-to-speech
+    Args:
+        plain (str): string to say in tts
+    """
 
     engine = pyttsx3.init()
 
     engine.setProperty("rate", 200)
     engine.setProperty("volume", 0.9)
     engine = pyttsx3.init()
+
+    print(Style.BRIGHT + "OUTPUTTING IN TTS:" + Style.RESET_ALL)
+    print(highlighted(plain))
+
     engine.say(plain)
     engine.runAndWait()
 
@@ -34,6 +41,9 @@ dash_sound = pygame.mixer.Sound("assets/dash.wav")
 #* Starts from \x1b, tells the console to do other things than output text
 #* For example: \x1b[3A moves up 3 lines 
 
+def highlighted(to_highlight:str) -> str:
+    """Highlights the text to display via colorama"""
+    return Fore.BLUE + Style.BRIGHT + Back.YELLOW + to_highlight + Style.RESET_ALL
 
 
 def console_output(morse:list[list[str]], plain:str, audio:bool=False):
@@ -47,10 +57,6 @@ def console_output(morse:list[list[str]], plain:str, audio:bool=False):
     def clear_line():
         """Clears the line wherever the cursor is on the terminal"""
         sys.stdout.write("\x1b[2K") 
-
-    def highlighted(to_highlight:str) -> str:
-        """Highlights the text to display via colorama"""
-        return Fore.BLUE + Style.BRIGHT + Back.YELLOW + to_highlight + Style.RESET_ALL
 
     def morse_and_plain(morse:str, plain:str):
             """Helper function for outputing morse and plain alongisde each other"""
@@ -119,9 +125,15 @@ def console_output(morse:list[list[str]], plain:str, audio:bool=False):
     sys.stdout.flush()
 
 # TODO: TEST THIS 
-def screen_output(morse:list[list[str]], plain:str, audio:bool=False):
+def screen_output(morse:list[list[str]], audio:bool=False):
+    """Outputs morse code by flashing it onto a screen
+    Args:
+        morse (list[list[str]]): Morse code. Every equivalent word is a list of equivalent character
+            (i.e. dots and dashes)
+        audio (bool): Sounds out beeps if True
+    """
     
-    # Initialize pygame cycle Create screen
+    # Create screen
     pygame.init()
     screen = pygame.display.set_mode((800, 600))
     pygame.display.set_caption("Screen output")
@@ -138,6 +150,7 @@ def screen_output(morse:list[list[str]], plain:str, audio:bool=False):
         # * completely block the screen, so I have to keep track of time and delay manually 
 
         start = pygame.time.get_ticks()
+
         while pygame.time.get_ticks() - start < ms:
 
             for event in pygame.event.get(): # * This keeps pygame from freezing, as it fetches all pending events 

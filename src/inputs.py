@@ -34,6 +34,9 @@ def setup_parser():
     output_group.add_argument("-so", "--screen-output", action="store_true", 
                         help="Displays translated morse code via a screen")
 
+    output_group.add_argument("-tts", "--text-to-speech", action="store_true",
+                              help="Sound out plain text in text-to-speech")
+
     parser.add_argument("-fo", "--file-output", metavar="filepath",
                         type=str, required=False, help="Output text and morse code into an existing .txt file")
     
@@ -66,6 +69,7 @@ def interactive_mode() -> dict:
                 'file_input': None,
                 'console_output': False,
                 'screen_output': False,
+                'text_to_speech': False,
                 'file_output': None,
                 'audio': False}
     
@@ -100,7 +104,7 @@ def interactive_mode() -> dict:
     # * OUTPUTS
     output_choice = questionary.select(
         "How would you like your outputs?",
-        choices=["Screen", "Console","File", "Screen+File", "Console+File"]
+        choices=["Screen", "Console","Text-to-speech", "File", "Screen+File", "Console+File", "Text-to-speech+File"]
     ).ask()
 
     if output_choice is None:
@@ -108,6 +112,7 @@ def interactive_mode() -> dict:
 
     options["console_output"] = "Console" in output_choice
     options["screen_output"] = "Screen" in output_choice
+    options["text_to_speech"] = "Text-to-speech" in output_choice
 
     if "File" in output_choice:
         options['file_output'] = questionary.path(
@@ -137,7 +142,7 @@ def get_options() -> dict:
         options = vars(args)
 
     # * Assume console input if nothing else given
-    if options['text'] and all(not options[opt] for opt in ['console_output', 'file_output', 'screen_output']):
+    if options['text'] and all(not options[opt] for opt in ['console_output', 'file_output', 'screen_output', 'text_to_speech']):
         options['console_output'] = True
 
 
