@@ -8,7 +8,7 @@ def texttomorse(message):
         try:
             morsecode += morsedictionary[element] + " "
         except KeyError: 
-            raise ValueError(f"ERR: {element} cannot be expressed in morse")
+            raise ValueError(f"{element} cannot be expressed in morse")
         
     return  f"{morsecode.strip()}"
 
@@ -23,7 +23,7 @@ def morsetotext(morsecode):
                 try:
                     text += textdictionary[alphabetcode]
                 except KeyError:
-                    raise ValueError(f"ERR: {alphabetcode} cannot be converted to plaintext")
+                    raise ValueError(f"{alphabetcode} cannot be converted to plaintext")
         text += " "
 
     return text.strip()
@@ -32,7 +32,7 @@ def identifier(userinput:str):
     userinput = userinput.strip()
 
     if userinput == "":
-        raise ValueError("ERR: Empty text, can't identify")
+        raise ValueError("Empty text, can't identify")
 
 
     morsecharacters = set('.- /')
