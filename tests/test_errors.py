@@ -15,11 +15,15 @@ def test_errors_ttm():
         texttomorse("\U0001F614")
 
 def test_errors_translator():
-    raise NotImplementedError
+    with pytest.raises(ValueError):
+        translate("////////")
+        translate("/ / / / / / / /")
+        translate("        ")
 
 def test_errors_identifier():
 
     with pytest.raises(ValueError):
         identifier("")
+        identifier("~i genuinly tweaking ~ &&&&&")
     assert identifier("////////") == "Morse"
     

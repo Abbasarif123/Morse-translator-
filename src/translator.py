@@ -28,6 +28,8 @@ def morsetotext(morsecode):
 
     return text.strip()
 
+
+
 def identifier(userinput:str):
     userinput = userinput.strip()
 
@@ -54,9 +56,12 @@ def translate(userinput:str):
 
     def strip_morse(morse: str):
         """To ensure morse code doesn't start with spaces"""
-        
-        while morse[1] in ['/', ' '] or morse[-1] in ['/', ' ']:
+
+        while morse[0] in ['/', ' '] or morse[-1] in ['/', ' ']:
             morse = morse.strip(' ').strip('/')
+
+            if len(morse) == 0:
+                raise ValueError("Empty morse string given")
         
         return morse
 
@@ -77,4 +82,5 @@ def translate(userinput:str):
     
 
 
-    
+if __name__ == "__main__":
+    print(translate("///"))
