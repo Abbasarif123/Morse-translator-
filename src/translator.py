@@ -13,6 +13,7 @@ def texttomorse(message):
     return  f"{morsecode.strip()}"
 
 def morsetotext(morsecode):
+    
     text = ""
     morsewordlist = morsecode.split(" / ")
     for morseword in morsewordlist:

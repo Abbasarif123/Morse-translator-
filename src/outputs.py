@@ -124,7 +124,6 @@ def console_output(morse:list[list[str]], plain:str, audio:bool=False):
     sys.stdout.write("\033[?25h") # show cursor 
     sys.stdout.flush()
 
-# TODO: TEST THIS 
 def screen_output(morse:list[list[str]], audio:bool=False):
     """Outputs morse code by flashing it onto a screen
     Args:
@@ -211,10 +210,11 @@ def screen_output(morse:list[list[str]], audio:bool=False):
     pygame.quit()
 
 def file_output(file_path:str, morse:str, plain:str):
+
     with open(file_path, 'w') as file:
         file.write(f"MORSE: {morse}\nPLAIN: {plain}") 
 
 if __name__ == "__main__":
     # print(pygame.mixer.get_init())
     #* FOR TESTING
-    print(dot_sound.get_length(), dash_sound.get_length())
+    file_output("test_output.txt", "skibidi", "ohio")

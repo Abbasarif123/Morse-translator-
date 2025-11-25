@@ -30,6 +30,7 @@ def main():
     listed_morse = polish_morse(morse)
 
     if options["file_output"]:
+        print(morse, plain)
         file_output(options["file_output"], morse, plain)
 
     if options["screen_output"]:
