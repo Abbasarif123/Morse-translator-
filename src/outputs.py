@@ -112,7 +112,7 @@ def console_output(morse:list[list[str]], plain:str, audio:bool=False):
                 time.sleep(delay + BONUS_DELAY) 
 
             completed_plain += pchar
-            completed_morse += this_morse
+            completed_morse += this_morse + " "
         
         # Space in between words
         completed_morse += " / " 
