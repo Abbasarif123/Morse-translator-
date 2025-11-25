@@ -194,10 +194,10 @@ def screen_output(morse:list[list[str]], audio:bool=False):
                 pygame.event.pump() # Keeps the game loop resposive, so the screen doesn't completely freeze
 
                 if dees == '.':
-                    delay = dot_sound.get_length() 
+                    delay = dot_sound.get_length() # * 0.12
                     dot_sound.play() if audio else None
                 else:
-                    delay = dash_sound.get_length()
+                    delay = dash_sound.get_length() # * 0.36
                     dash_sound.play() if audio else None
 
 
@@ -205,6 +205,8 @@ def screen_output(morse:list[list[str]], audio:bool=False):
 
                 flash(delay_ms)
 
+            if not wait_nonblocking(FLASH_GAP_MS * 2):
+                raise ValueError("User quit")
 
 
     pygame.quit()
