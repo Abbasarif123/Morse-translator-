@@ -1,5 +1,5 @@
 import pytest
-from src.translator import morsetotext, texttomorse
+from src.translator import morsetotext, texttomorse,identifier
 
 ####tests for texttomorse####
 
@@ -51,3 +51,11 @@ def test_bothwaystest():
 
     assert result == originaltext
 
+
+###tests for the identifier function
+
+def test_identifiertests():
+    assert identifier("-... . -.-- -... .-.. .- -.. . / -... . -.-- -... .-.. .- -.. . / .-.. . - / .. - / .-. .. .--.") == "Morse"
+    assert identifier("-- . / .-- .... . -. / -.- -. . . / ... ..- .-. --. . .-. -.-- / .. ... / -.. ..- .") == "Morse"
+    assert identifier("they did surgery on a grape") == "Text"
+    assert identifier("We've tried nothing and we're all out of ideas!") == "Text"
