@@ -1,16 +1,11 @@
 from src.inputs import *
 from src.outputs import *
-from src.translator import translate
+from src.translator import translate, polish_morse
 import sys
 
 # ! SPACE BETWEEN CHARACTERS
 # ! SLASH BETWEEN WORDS
 
-def polish_morse(morse:str) -> list[list[str]]:
-    morse_words = morse.split("/")
-    morse_letters = [word.strip().split() for word in morse_words]
-
-    return morse_letters
 
 # def translate(blind:str):
 

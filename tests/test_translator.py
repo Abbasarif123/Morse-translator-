@@ -8,6 +8,7 @@ def test_basic_texttomorse(): #overall normal test
     assert texttomorse ("He lives in a pineapple under the sea. SPONGEBOB SQUAREPANTS") == ".... . / .-.. .. ...- . ... / .. -. / .- / .--. .. -. . .- .--. .--. .-.. . / ..- -. -.. . .-. / - .... . / ... . .- .-.-.- / ... .--. --- -. --. . -... --- -... / ... --.- ..- .- .-. . .--. .- -. - ..."
     assert texttomorse("Gian hain aap") == "--. .. .- -. / .... .- .. -. / .- .- .--."
 
+
 def test_basicSOS_texttomorse(): #the classic SOS test
     assert texttomorse("SOS") == "... --- ..."
 
