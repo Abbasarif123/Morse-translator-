@@ -21,7 +21,6 @@ def tts_output(plain:str):
 
     engine.setProperty("rate", 200)
     engine.setProperty("volume", 0.9)
-    engine = pyttsx3.init()
 
     print(Style.BRIGHT + "OUTPUTTING IN TTS:" + Style.RESET_ALL)
     print(highlighted(plain))

@@ -1,6 +1,6 @@
 import pygame
 import numpy as np
-
+# ! NOT USED 
 
 frequency = 750
 samplerate = 44100
