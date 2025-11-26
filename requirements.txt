@@ -1,3 +1,4 @@
 colorama
 pygame
 questionary
+pyttsx3
