@@ -2,7 +2,7 @@ from src.inputs import *
 from src.outputs import *
 from src.translator import translate, polish_morse
 import sys
-
+#main
 # ! SPACE BETWEEN CHARACTERS
 # ! SLASH BETWEEN WORDS
 

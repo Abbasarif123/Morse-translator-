@@ -2,7 +2,7 @@ import argparse
 import sys
 import questionary
 import os
-
+#configure inputs
 def setup_parser():
     """Sets up the argument parser and returns the parsed arguments
     

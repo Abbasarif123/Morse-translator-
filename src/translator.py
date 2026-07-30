@@ -1,5 +1,5 @@
 from src.morsedictionary import morsedictionary,textdictionary
-
+#translation
 def texttomorse(message):
     """Converts plaintext message to morse code"""
     uppermessage = message.upper()

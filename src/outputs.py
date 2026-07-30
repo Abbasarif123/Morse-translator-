@@ -8,7 +8,7 @@ import pygame
 import time
 
 from src.morseplayer import playmorsesound
-
+#configure outputs
 init()
 
 def tts_output(plain:str):

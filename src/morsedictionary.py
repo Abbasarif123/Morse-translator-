@@ -1,3 +1,5 @@
+#dictionary
+
 morsedictionary =  {
     # Letters
     'A': '.-',     'B': '-...',   'C': '-.-.',   'D': '-..',
