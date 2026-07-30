@@ -7,7 +7,7 @@ os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1" # Hides the "Hello from pygame" t
 import pygame
 import time
 
-from src.morseplayer import playmorsesound
+
 #configure outputs
 init()
 
