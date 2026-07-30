@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morse Code Translator</title>
+    
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+    
+    <py-config>
+        [[fetch]]
+        files = ["./src/morsedictionary.py", "./src/translator.py"]
+    </py-config>
+
+    <style>
+        :root {
+            --bg-color: #1e1e2e;
+            --panel-bg: #28283d;
+            --text-main: #f8f8f2;
+            --text-muted: #a1a1aa;
+            --accent: #3584e4; 
+            --accent-hover: #1c71d8;
+            --border: #3f3f5a;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            /* No transition on background-color to keep flashes sharp */
+        }
+
+        .app-wrapper {
+            background-color: var(--panel-bg);
+            width: 100%;
+            max-width: 550px;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border);
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 1.6rem;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            box-sizing: border-box;
+            height: 100px;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Fira Code', Consolas, monospace;
+            font-size: 15px;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(53, 132, 228, 0.3);
+        }
+
+        textarea::placeholder {
+            color: #626280;
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding: 5px 0;
+        }
+
+        label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            user-select: none;
+        }
+
+        input[type="checkbox"] {
+            accent-color: var(--accent);
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        button {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: var(--accent-hover);
+        }
+
+        button:disabled {
+            background-color: #4a4a6a;
+            color: #888;
+            cursor: not-allowed;
+        }
+
+        #output-area {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            min-height: 60px;
+        }
+
+        #output-area strong {
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 10px;
+        }
+
+        #translation-result {
+            margin: 0;
+            font-family: 'Fira Code', Consolas, monospace;
+            font-size: 1.1rem;
+            line-height: 1.5;
+            word-wrap: break-word;
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body id="main-body">
+
+    <div class="app-wrapper">
+        <h1>Morse Code Translator</h1>
+        
+        <textarea id="user-input" placeholder="Enter text or morse code (use / for word spaces)..."></textarea>
+        
+        <div class="controls">
+            <label><input type="checkbox" id="audio-check"> Audio</label>
+            <label><input type="checkbox" id="screen-check"> Screen Flash</label>
+        </div>
+        
+        <button py-click="handle_translation">Translate</button>
+
+        <div id="output-area">
+            <strong>Result:</strong>
+            <p id="translation-result"></p>
+        </div>
+    </div>
+
+    <!-- Native JavaScript for TTS -->
+    <script>
+        function playTTS(text) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            window.speechSynthesis.speak(utterance);
+        }
+    </script>
+
+    <script type="py">
+        import asyncio
+        from pyscript import document, window
+        from src.translator import translate, polish_morse, identifier
+
+        dot_sound = window.Audio.new("assets/dot.wav")
+        dash_sound = window.Audio.new("assets/dash.wav")
+
+        DOT_TIME = 0.15
+        DASH_TIME = 0.45
+        SYMBOL_GAP = 0.15
+        LETTER_GAP = 0.45
+        WORD_GAP = 1.05
+
+        async def play_outputs(morse_list, use_screen, use_audio):
+            body = document.getElementById("main-body")
+            original_bg = body.style.backgroundColor
+
+            if use_screen:
+                body.style.backgroundColor = "black"
+                await asyncio.sleep(0.2) 
+
+            for mword in morse_list:
+                for mcode in mword:
+                    for symbol in mcode:
+                        delay = DOT_TIME if symbol == '.' else DASH_TIME
+                        
+                        if use_audio:
+                            sound = dot_sound if symbol == '.' else dash_sound
+                            sound.currentTime = 0
+                            sound.play()
+                            
+                        if use_screen:
+                            body.style.backgroundColor = "white"
+                            
+                        await asyncio.sleep(delay)
+                        
+                        if use_screen:
+                            body.style.backgroundColor = "black"
+                            
+                        await asyncio.sleep(SYMBOL_GAP)
+                        
+                    await asyncio.sleep(LETTER_GAP - SYMBOL_GAP)
+                await asyncio.sleep(WORD_GAP - LETTER_GAP)
+                
+            body.style.backgroundColor = original_bg
+
+        async def handle_translation(event):
+            user_text = document.getElementById("user-input").value
+            use_screen = document.getElementById("screen-check").checked
+            use_audio = document.getElementById("audio-check").checked
+            
+            try:
+                morse, plain = translate(user_text)
+                input_type = identifier(user_text)
+                
+                if input_type == "Morse":
+                    document.getElementById("translation-result").innerText = plain
+                    
+                    if use_audio:
+                        window.playTTS(plain)
+                        
+                elif input_type == "Text":
+                    document.getElementById("translation-result").innerText = morse
+                    
+                    if use_screen or use_audio:
+                        listed_morse = polish_morse(morse)
+                        
+                        event.target.disabled = True 
+                        await play_outputs(listed_morse, use_screen, use_audio)
+                        event.target.disabled = False
+                    
+            except Exception as e:
+                document.getElementById("translation-result").innerText = f"Error: {str(e)}"
+    </script>
+
+</body>
+</html>
